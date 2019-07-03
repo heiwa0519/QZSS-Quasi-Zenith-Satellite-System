@@ -116,6 +116,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bit2buff.c" />
+    <ClCompile Include="gpp_cssr.c" />
+    <ClCompile Include="gpp_cssr_buffer.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>

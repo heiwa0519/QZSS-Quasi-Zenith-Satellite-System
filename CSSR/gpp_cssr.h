@@ -10,9 +10,34 @@ extern "C" {
 #endif
 
 #include "compiler.h" //GPP types
+#include<stdio.h>
 
 #define GPP_CSSR_MAX_SYS 16
 #define	GPP_CSSR_MAX_COEFF 4
+
+#define GPP_CSSR_MAX_SAT 0
+#define GPP_CSSR_MAX_CODE 0
+#define GPP_CSSR_MAX_PHASE 0
+#define GPP_CSSR_MAX_GRID 0
+
+
+/******************************************
+		CSSR ERROR Codes
+******************************************/
+#define GPP_CSSR_ERROR_BASE 						-54000
+#define GPP_CSSR_ERR_NOT_YET_IMPLEMENTED			(GPP_CSSR_ERROR_BASE-1)		/* -54001 */
+#define GPP_CSSR_ERR_NOT_ENOUGH_MEMORY				(GPP_CSSR_ERROR_BASE-2)		/* -54002 */
+#define GPP_CSSR_ERR_INVALID_MASK					(GPP_CSSR_ERROR_BASE-3)		/* -54003 */
+#define GPP_CSSR_ERR_INVALID_ORB					(GPP_CSSR_ERROR_BASE-4)		/* -54004 */
+#define GPP_CSSR_ERR_INVALID_CLK					(GPP_CSSR_ERROR_BASE-5)		/* -54005 */
+#define GPP_CSSR_ERR_INVALID_SAT_CODE_BIAS			(GPP_CSSR_ERROR_BASE-6)		/* -54006 */
+#define GPP_CSSR_ERR_INVALID_SAT_PHASE_BIAS		   	(GPP_CSSR_ERROR_BASE-7)		/* -54007 */
+#define GPP_CSSR_ERR_INVALID_SAT_BIAS				(GPP_CSSR_ERROR_BASE-8)		/* -54008 */
+#define GPP_CSSR_ERR_INVALID_URA					(GPP_CSSR_ERROR_BASE-9)		/* -54009 */
+#define GPP_CSSR_ERR_INVALID_STEC					(GPP_CSSR_ERROR_BASE-10)	/* -54010 */
+#define GPP_CSSR_ERR_INVALID_GRID					(GPP_CSSR_ERROR_BASE-11)	/* -54011 */
+#define GPP_CSSR_ERR_INVALID_SERVICE_INFO			(GPP_CSSR_ERROR_BASE-12)	/* -54012 */
+#define GPP_CSSR_ERR_INVALID_COMBINED				(GPP_CSSR_ERROR_BASE-13)	/* -54012 */
 
 typedef struct	GPP_CSSR_L6_MESSAGE_TYPE_ID
 {
@@ -161,8 +186,8 @@ typedef struct GPP_CSSR_BIAS_HEADER
 
 typedef struct GPP_CSSR_BIAS_MESSAGE
 {
-	pGPP_CSSR_CB	*code_bias;
-	pGPP_CSSR_PB    *phase_bias;
+	pGPP_CSSR_CB_MESSAGE	*code_bias;
+	pGPP_CSSR_PB_MESSAGE    *phase_bias;
 }GPP_CSSR_BIAS_MESSAGE, *pGPP_CSSR_BIAS_MESSAGE;
 
 typedef struct GPP_CSSR_BIAS
@@ -255,6 +280,7 @@ typedef struct GPP_CSSR_GRIDDED_CORRECTION
 typedef struct GPP_CSSR_CLAS_SERVICE_INFO
 {
 	//to be done
+	int nothing;
 }GPP_CSSR_CLAS_SERVICE_INFO, *pGPP_CSSR_CLAS_SERVICE_INFO;
 
 typedef struct GPP_CSSR_COMBINE_CORRECTION_HEADER
@@ -307,6 +333,93 @@ typedef struct	GPP_CSSR
 	pGPP_CSSR_HEADER header;
 	pGPP_CSSR_DATA_PART data_part;
 }GPP_CSSR, *pGPP_CSSR;
+
+
+GPPLONG gpp_cssr_cssr2buffer(const pGPP_CSSR cssr,GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPLONG gpp_cssr_buffer2csrr(pGPP_CSSR ocb, const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+
+
+GPPULONG gpp_cssr_header2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_l6_msg_type_id2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_data2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_mask2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_mask_header2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_mask_message2buffer(const pGPP_CSSR cssr,GPPUINT1 sys, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_orb2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_orb_header2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_orb_message2buffer(const pGPP_CSSR cssr,GPPUINT1 sys,GPPUINT1 sat, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_clk2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_clk_header2buffer(const pGPP_CSSR cssr, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+GPPULONG gpp_cssr_clk_message2buffer(const pGPP_CSSR cssr, GPPUINT1 sys, GPPUINT1 sat, GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos);
+
+/*************************************************************************************************************
+					PROTOTYPES FOR MEMORY ALLOCATION AND FREE FUNCTIONS
+*************************************************************************************************************/
+
+GPPLONG gpp_cssr_mask_add_header(pGPP_CSSR_MASK mask);
+GPPLONG gpp_cssr_mask_add_mask_message(pGPP_CSSR_MASK mask);
+
+GPPLONG gpp_cssr_orb_add_header(pGPP_CSSR_ORB_CORRECTION orb);
+GPPLONG gpp_cssr_orb_add_mask_message(pGPP_CSSR_ORB_CORRECTION orb);
+
+GPPLONG gpp_cssr_clk_add_header(pGPP_CSSR_CLK_CORRECTION clk);
+GPPLONG gpp_cssr_clk_add_mask_message(pGPP_CSSR_CLK_CORRECTION clk);
+
+GPPLONG cssr_cb_add_header(pGPP_CSSR_CB cb);
+GPPLONG gpp_cssr_cb_add_mask_message(pGPP_CSSR_CB cb);
+
+GPPLONG cssr_pb_add_header(pGPP_CSSR_PB pb);
+GPPLONG gpp_cssr_pb_add_mask_message(pGPP_CSSR_PB pb);
+
+GPPLONG gpp_cssr_bias_add_header(pGPP_CSSR_BIAS	bias);
+GPPLONG gpp_cssr_bias_add_mask_message(pGPP_CSSR_BIAS bias);
+
+GPPLONG gpp_cssr_ura_add_header(pGPP_CSSR_URA ura);
+GPPLONG gpp_cssr_ura_add_mask_message(pGPP_CSSR_URA ura);
+
+GPPLONG gpp_cssr_stec_correction_add_header(pGPP_CSSR_STEC_CORRECTION stec);
+GPPLONG gpp_cssr_stec_add_mask_message(pGPP_CSSR_STEC_CORRECTION stec);
+
+GPPLONG gpp_cssr_grid_correction_add_header(pGPP_CSSR_GRIDDED_CORRECTION grid);
+GPPLONG gpp_cssr_grid_add_mask_message(pGPP_CSSR_GRIDDED_CORRECTION grid);
+
+GPPLONG gpp_cssr_gnss_combine_correction_add_header(pGPP_CSSR_GNSS_COMBINE_CORRECTION gnss_combine);
+GPPLONG gpp_cssr_gnss_combine_correction_add_mask_message(pGPP_CSSR_GNSS_COMBINE_CORRECTION gnss_combine);
+
+
+GPPLONG gpp_cssr_mask_free_header(pGPP_CSSR_MASK mask);
+GPPLONG gpp_cssr_mask_free_spec_part(pGPP_CSSR_MASK mask);
+
+GPPLONG gpp_cssr_orb_free_header(pGPP_CSSR_ORB_CORRECTION orb);
+GPPLONG gpp_cssr_orb_free_mask_message(pGPP_CSSR_ORB_CORRECTION orb);
+
+GPPLONG gpp_cssr_clk_free_header(pGPP_CSSR_CLK_CORRECTION clk);
+GPPLONG gpp_cssr_clk_add_mask_message(pGPP_CSSR_CLK_CORRECTION clk);
+
+GPPLONG gpp_cssr_cb_free_header(pGPP_CSSR_CB cb);
+GPPLONG gpp_cssr_cb_free_mask_message(pGPP_CSSR_CB cb);
+
+GPPLONG gpp_cssr_pb_free_header(pGPP_CSSR_PB pb);
+GPPLONG gpp_cssr_pb_free_mask_message(pGPP_CSSR_PB pb);
+
+GPPLONG gpp_cssr_bias_free_header(pGPP_CSSR_BIAS bias);
+GPPLONG gpp_cssr_bias_free_message(pGPP_CSSR_BIAS bias);
+
+GPPLONG gpp_cssr_ura_add_header(pGPP_CSSR_URA ura);
+GPPLONG gpp_cssr_ura_free_mask_message(pGPP_CSSR_URA ura);
+
+GPPLONG gpp_cssr_stec_correction_free_header(pGPP_CSSR_STEC_CORRECTION stec);
+GPPLONG gpp_cssr_stec_free_mask_message(pGPP_CSSR_STEC_CORRECTION stec);
+
+GPPLONG gpp_cssr_grid_correction_free_header(pGPP_CSSR_GRIDDED_CORRECTION grid);
+GPPLONG gpp_cssr_grid_correction_free_mask_message(pGPP_CSSR_GRIDDED_CORRECTION grid);
+
+GPPLONG gpp_cssr_gnss_combine_correction_free_header(pGPP_CSSR_GNSS_COMBINE_CORRECTION gnss_combine);
+GPPLONG gpp_cssr_gnss_combine_correction_free_mask_message(pGPP_CSSR_GNSS_COMBINE_CORRECTION gnss_combine);
+
+extern void gpp_sapa_float2buffer(GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPDOUBLE max, GPPUINT1 bits, GPPDOUBLE res, GPPUINT2 *invalid, GPPDOUBLE value);
+extern GPPFLOAT gpp_sapa_buffer2float(const GPPUCHAR *buffer, GPPLONG *byte_pos, GPPLONG *bit_pos, GPPDOUBLE min, GPPUINT1 bits, GPPDOUBLE res, GPPUINT2 *invalid);
+GPPLONG gpp_sapa_get_bit_diff(GPPLONG byte_pos, GPPLONG bit_pos, GPPLONG byte_pos0, GPPLONG bit_pos0);
 
 #ifdef __cplusplus
 }

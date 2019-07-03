@@ -21,6 +21,12 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gpp_cssr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gpp_cssr_buffer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bit2buff.h">
